@@ -3,5 +3,5 @@ export default function UserProfilePage({}) {
     <main>
       <h1>Username Profile Page</h1>
     </main>
-  )
+  );
 }
