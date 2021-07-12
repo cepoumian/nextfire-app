@@ -2,6 +2,7 @@ import { auth, firestore, googleAuthProvider } from '../lib/firebase';
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { UserContext } from '../lib/context';
 import debounce from 'lodash.debounce';
+import Metatags from '../components/Metatags';
 
 export default function EnterPage({}) {
   const { user, username } = useContext(UserContext);
@@ -11,6 +12,7 @@ export default function EnterPage({}) {
   // 3. user signed in, has username <SignOutButton />
   return (
     <main>
+      <Metatags title="Log In, Sign Up, or Sign Out" />
       {user ? !username ? <UsernameForm /> : <SignOutButton /> : <SignInButton />}
     </main>
   );
