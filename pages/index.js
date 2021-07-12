@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from '../styles/Home.module.css';
 import PostFeed from '../components/PostFeed';
 import Loader from '../components/Loader';
+import Metatags from '../components/Metatags';
 import toast from 'react-hot-toast';
 import { firestore, fromMillis, postToJSON } from '../lib/firebase';
 
@@ -56,6 +57,7 @@ export default function Home(props) {
 
   return (
     <main>
+      <Metatags title="Home Page" />
       <PostFeed posts={posts} />
 
       {!loading && !postsEnd && <button onClick={getMorePosts}>Load More</button>}
