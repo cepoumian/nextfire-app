@@ -1,11 +1,11 @@
-import { auth, firestore, googleAuthProvider } from '../lib/firebase';
-import { useState, useEffect, useContext, useCallback } from 'react';
-import { UserContext } from '../lib/context';
-import debounce from 'lodash.debounce';
-import Metatags from '../components/Metatags';
+import { auth, firestore, googleAuthProvider } from '../lib/firebase'
+import { useState, useEffect, useContext, useCallback } from 'react'
+import { UserContext } from '../lib/context'
+import debounce from 'lodash.debounce'
+import Metatags from '../components/Metatags'
 
 export default function EnterPage({}) {
-  const { user, username } = useContext(UserContext);
+  const { user, username } = useContext(UserContext)
 
   // 1. user signed out <SignInButton />
   // 2. user signed in, but missing username <UsernameForm />
@@ -13,91 +13,99 @@ export default function EnterPage({}) {
   return (
     <main>
       <Metatags title="Log In, Sign Up, or Sign Out" />
-      {user ? !username ? <UsernameForm /> : <SignOutButton /> : <SignInButton />}
+      {user ? (
+        !username ? (
+          <UsernameForm />
+        ) : (
+          <SignOutButton />
+        )
+      ) : (
+        <SignInButton />
+      )}
     </main>
-  );
+  )
 }
 
 // Sign in with Google button
 function SignInButton() {
   const signInWithGoogle = async () => {
-    await auth.signInWithPopup(googleAuthProvider);
-  };
+    await auth.signInWithPopup(googleAuthProvider)
+  }
   return (
     <button className="btn-google" onClick={signInWithGoogle}>
       <img src={'/google.png'} alt="Google's logo" /> Sign in with Google
     </button>
-  );
+  )
 }
 
 // Sign out button
 function SignOutButton() {
-  return <button onClick={() => auth.signOut()}>Sign Out</button>;
+  return <button onClick={() => auth.signOut()}>Sign Out</button>
 }
 
 function UsernameForm() {
-  const [formValue, setFormValue] = useState('');
-  const [isValid, setIsValid] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [formValue, setFormValue] = useState('')
+  const [isValid, setIsValid] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const { user, username } = useContext(UserContext);
+  const { user, username } = useContext(UserContext)
 
   useEffect(() => {
-    checkUsername(formValue);
-  }, [formValue]);
+    checkUsername(formValue)
+  }, [formValue])
 
   const handleUsernameInput = (e) => {
     // Force from value typed in form to match the correct format
-    const val = e.target.value.toLowerCase();
-    const re = /^(?=[a-zA-Z0-9._]{3,15}$)(?!.*[_.]{2})[^_.].*[^_.]$/;
+    const val = e.target.value.toLowerCase()
+    const re = /^(?=[a-zA-Z0-9._]{3,15}$)(?!.*[_.]{2})[^_.].*[^_.]$/
 
     // Only set form value if length is < 3 OR it passes regex
     if (val.length < 3) {
-      setFormValue(val);
-      setLoading(false);
-      setIsValid(false);
+      setFormValue(val)
+      setLoading(false)
+      setIsValid(false)
     }
 
     if (re.test(val)) {
-      setFormValue(val);
-      setLoading(true);
-      setIsValid(false);
+      setFormValue(val)
+      setLoading(true)
+      setIsValid(false)
     }
-  };
+  }
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Create refs for both documents
-    const userDoc = firestore.doc(`users/${user.uid}`);
-    const usernameDoc = firestore.doc(`usernames/${formValue}`);
+    const userDoc = firestore.doc(`users/${user.uid}`)
+    const usernameDoc = firestore.doc(`usernames/${formValue}`)
 
     // Commit both documents together as a batch write
-    const batch = firestore.batch();
+    const batch = firestore.batch()
     batch.set(userDoc, {
       username: formValue,
       photoURL: user.photoURL,
       displayName: user.displayName,
-    });
-    batch.set(usernameDoc, { uid: user.uid });
+    })
+    batch.set(usernameDoc, { uid: user.uid })
 
-    await batch.commit();
-  };
+    await batch.commit()
+  }
 
   // Hit the database for username match after each debounced change
   // useCallback is required for debounce to work
   const checkUsername = useCallback(
     debounce(async (username) => {
       if (username.length >= 3) {
-        const ref = firestore.doc(`usernames/${username}`);
-        const { exists } = await ref.get();
-        console.log('Firestore read executed!');
-        setIsValid(!exists);
-        setLoading(false);
+        const ref = firestore.doc(`usernames/${username}`)
+        const { exists } = await ref.get()
+        console.log('Firestore read executed!')
+        setIsValid(!exists)
+        setLoading(false)
       }
     }, 500),
     []
-  );
+  )
 
   return (
     !username && (
@@ -111,7 +119,11 @@ function UsernameForm() {
             value={formValue}
             onChange={handleUsernameInput}
           />
-          <UsernameMessage username={formValue} isValid={isValid} loading={loading} />
+          <UsernameMessage
+            username={formValue}
+            isValid={isValid}
+            loading={loading}
+          />
           <button type="submit" className="btn-green" disabled={!isValid}>
             Choose
           </button>
@@ -127,17 +139,17 @@ function UsernameForm() {
         </form>
       </section>
     )
-  );
+  )
 }
 
 function UsernameMessage({ username, isValid, loading }) {
   if (loading) {
-    return <p>Checking...</p>;
+    return <p>Checking...</p>
   } else if (isValid) {
-    return <p className="text-success">{username} is available!</p>;
+    return <p className="text-success">{username} is available!</p>
   } else if (username && !isValid) {
-    return <p className="text-danger">That username is taken :-/</p>;
+    return <p className="text-danger">That username is taken :-/</p>
   } else {
-    return <p></p>;
+    return <p></p>
   }
 }

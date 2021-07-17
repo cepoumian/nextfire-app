@@ -8,5 +8,5 @@ export default function UserProfile({ user }) {
       </p>
       <h1>{user.displayName}</h1>
     </div>
-  );
+  )
 }
