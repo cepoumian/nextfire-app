@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 import { firestore, fromMillis, postToJSON } from '../lib/firebase'
 
 // Max post to query per page
-const LIMIT = 1
+const LIMIT = 5
 
 export async function getServerSideProps() {
   const postsQuery = firestore
@@ -50,7 +50,7 @@ export default function Home(props) {
     const newPosts = (await query.get()).docs.map((doc) => doc.data())
 
     setPosts(posts.concat(newPosts))
-    loading(false)
+    setLoading(false)
 
     if (newPosts.length < LIMIT) {
       setPostsEnd(true)
